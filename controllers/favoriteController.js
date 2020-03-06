@@ -22,13 +22,13 @@ class FavoriteController {
       .then(user => {
         // console.log(user.Favorites)
         for (let i = 0; i < user.Favorites.length; i++) {
-            console.log(i)
+          console.log(i);
           if (user.Favorites[i].mal_id === newFavorite.mal_id) {
             const err = {
               name: "FavoriteFailed",
               message: `you already add ${newFavorite.title} to your favorite`
             };
-            console.log(err)
+            console.log(err);
             throw err;
           }
         }
@@ -56,25 +56,35 @@ class FavoriteController {
     })
       .then(favorites => {
         const allFavorite = favorites.Favorites.map(el => {
-            return el.dataValues
-        })
+          return el.dataValues;
+        });
         res.status(200).json(allFavorite);
       })
       .catch(next);
   }
   static deleteFavorite(req, res, next) {
-    const UserId = req.decode.id;
-    const FavoriteId = req.params.id;
-    UserFavorite.destroy({
+    const id = req.decode.id;
+    const mal_id = +req.headers.mal_id;
+    let findFavorite = {};
+    User.findOne({
       where: {
-        UserId,
-        FavoriteId
-      }
+        id
+      },
+      include: Favorite
     })
+      .then(({ Favorites }) => {
+        findFavorite = Favorites.find(el => el.mal_id === mal_id);
+        return UserFavorite.destroy({
+          where: {
+            UserId: id,
+            FavoriteId: findFavorite.id
+          }
+        });
+      })
       .then(success => {
         return Favorite.destroy({
           where: {
-            id: FavoriteId
+            id: findFavorite.id
           }
         });
       })
