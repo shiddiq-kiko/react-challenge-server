@@ -46,6 +46,8 @@ class User extends sequelize.Sequelize.Model{}
     sequelize,
     hooks: {
       beforeCreate: (user, option) => {
+        console.log(user.password)
+        console.log(user.email)
         user.password = hashPassword(user.password)
       }
     }
