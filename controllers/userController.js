@@ -8,7 +8,6 @@ class UserController {
       email: req.body.email,
       password: req.body.password
     };
-    console.log(newUser)
     User.create(newUser)
       .then(user => {
         const userToToken = {
